@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Stage
+  - Wall_Left
+  - Wall_Foreground
+  - Wall_Right
+  - Wall_Back
+  - Block
   layers:
   - Default
   - TransparentFX
