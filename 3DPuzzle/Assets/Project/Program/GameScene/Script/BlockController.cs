@@ -15,6 +15,7 @@ using UnityEngine;
  */
 public class BlockController : MonoBehaviour
 {
+    // @todo もしかしたらここに回転方向を追加するかも
     /**
      * @enum InputDirection
      * 入力した方向の列挙体
@@ -39,7 +40,9 @@ public class BlockController : MonoBehaviour
         public bool rotated;// 回転したか
     }
 
+    private Transform blockTransform;// ブロックのトランスフォーム
     private Vector3Int blockPosition;// ブロックの位置
+    private Quaternion blockQuaternion;// ブロックの回転角度
     private int blockPosMaxX;// ブロックが動けるX座標の範囲(最大値)
     private int blockPosMinX;// ブロックが動けるX座標の範囲(最小値)
     private int blockPosMaxZ;// ブロックが動けるZ座標の範囲(最大値)
@@ -71,7 +74,10 @@ public class BlockController : MonoBehaviour
         // @todo 下記のblockPositionはテスト用で適当に配置
         //       本番用に無難に設置できるような座標を決める必要あり
         blockPosition = new Vector3Int(10, 100, 0);
-        beforeQuaternion = transform.rotation;
+        blockQuaternion = transform.rotation;
+        blockTransform = transform;
+        blockTransform.position = blockPosition;
+        blockTransform.rotation = blockQuaternion;
         blockScale = (int)transform.GetChild(0).lossyScale.x;
         blockNum = transform.childCount;
         canSet = false;
@@ -81,6 +87,7 @@ public class BlockController : MonoBehaviour
         beforeBlockPosX = blockPosition.x;
         beforeBlockPosY = blockPosition.y;
         beforeBlockPosZ = blockPosition.z;
+        beforeQuaternion = blockQuaternion;
         canRotate = true;
     }
 
@@ -91,7 +98,7 @@ public class BlockController : MonoBehaviour
     {
         ModifyBlockPos();
         // 設置未完了で未衝突の時
-        if (!canSet && !isCollide && colliders.Count == 0)
+        if (!canSet && !isCollide && colliders.Count == 0 && canRotate)
         {
             FallBlock();
             InputKey();
@@ -160,7 +167,6 @@ public class BlockController : MonoBehaviour
                         return;// 衝突リストに追加しない
                     }
                 }
-                Debug.Log("床と衝突した");
                 colliders.Add(list);// 新しい衝突として検出する
                 isCollide = true;// 衝突した状態にする
             }
@@ -173,8 +179,9 @@ public class BlockController : MonoBehaviour
                 list.rotated = false;
 
                 // 回転をして衝突したとき
-                if (!beforeQuaternion.Equals(transform.rotation))
+                if (!beforeQuaternion.Equals(blockQuaternion))
                 {
+                    canRotate = false;
                     list.rotated = true;
                     list.priority = 2;
                 }
@@ -235,7 +242,6 @@ public class BlockController : MonoBehaviour
                             // 別のブロックと回転なし(落下して)衝突済みのとき
                             else if (colliderList.direct == InputDirection.no)
                             {
-                                Debug.Log("別ブロックと落下衝突済み");
                                 return;// 衝突リストに追加しない
                             }
                         }
@@ -259,10 +265,9 @@ public class BlockController : MonoBehaviour
                         }
                         if (colliderList.colliderObj.gameObject.transform.parent.name != null)
                         {
-                            // 同じブロックと衝突済みのとき
-                            if (list.colliderObj.gameObject.transform.parent.name.Equals(colliderList.colliderObj.gameObject.transform.parent.name))
+                            // 同じブロックと落下して衝突済みのとき
+                            if (!list.rotated && list.colliderObj.gameObject.transform.parent.name.Equals(colliderList.colliderObj.gameObject.transform.parent.name))
                             {
-                                Debug.Log("同じブロックと衝突済み");
                                 return;// 衝突リストに追加しない
                             }
                         }
@@ -299,34 +304,38 @@ public class BlockController : MonoBehaviour
                 if (colliderList.colliderObj.gameObject.CompareTag("Wall_Left"))
                 {
                     blockPosition.x += blockScale;
-                    beforeBlockPosX = blockPosition.x;
+                    //beforeBlockPosX = blockPosition.x;
                     blockPosMinX = blockPosition.x;// 左へ移動できる範囲を制限
                 }
                 // 手前の壁に衝突したとき
                 else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Foreground"))
                 {
                     blockPosition.z += blockScale;
-                    beforeBlockPosZ = blockPosition.z;
+                    //beforeBlockPosZ = blockPosition.z;
                     blockPosMinZ = blockPosition.z;// 手前へ移動できる範囲を制限
                 }
                 // 右の壁に衝突したとき
                 else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Right"))
                 {
                     blockPosition.x -= blockScale;
-                    beforeBlockPosX = blockPosition.x;
+                    //beforeBlockPosX = blockPosition.x;
                     blockPosMaxX = blockPosition.x;// 右へ移動できる範囲を制限
                 }
                 // 奥側の壁に衝突したとき
                 else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Back"))
                 {
                     blockPosition.z -= blockScale;
-                    beforeBlockPosZ = blockPosition.z;
+                    //beforeBlockPosZ = blockPosition.z;
                     blockPosMaxZ = blockPosition.z;// 奥へ移動できる範囲を制限
                 }
                 // ステージ（床）に衝突したとき
                 else if (colliderList.colliderObj.gameObject.CompareTag("Stage"))
                 {
                     canSet = true;// 設置完了状態にする
+                    if (!beforeQuaternion.Equals(blockQuaternion))
+                    {
+                        blockQuaternion = beforeQuaternion;
+                    }
                     if (beforeBlockPosX != blockPosition.x)
                     {
                         blockPosition.x = beforeBlockPosX;
@@ -346,17 +355,10 @@ public class BlockController : MonoBehaviour
                     // 回転させてブロックに衝突したとき
                     if (colliderList.rotated)
                     {
-                        Debug.Log("回転前：" + transform.rotation);
-                        transform.rotation = beforeQuaternion;
-                        Debug.Log("回転後：" + transform.rotation);
-                        blockPosition.x = Vector3Int.FloorToInt(transform.position).x;
-                        blockPosition.z = Vector3Int.FloorToInt(transform.position).z;
-                        Debug.Log("回転操作前の位置：(" + blockPosition.x + "," + blockPosition.y + "," + blockPosition.z + ")");
+                        blockQuaternion = beforeQuaternion;
                         blockPosition.x = beforeBlockPosX;
-                        //blockPosition.y = beforeBlockPosY;
                         blockPosition.z = beforeBlockPosZ;
-                        Debug.Log("回転操作後の位置：(" + blockPosition.x + "," + blockPosition.y + "," + blockPosition.z + ")");
-                        canRotate = false;
+                        canRotate = true;
                     }
                     // 左方向キーが入力されてブロックに衝突したとき
                     else if (colliderList.direct == InputDirection.left)
@@ -402,16 +404,26 @@ public class BlockController : MonoBehaviour
                         {
                             blockPosition.y = beforeBlockPosY;
                         }
+                        if (!beforeQuaternion.Equals(blockQuaternion))
+                        {
+                            blockQuaternion = beforeQuaternion;
+                        }
                     }
                 }
                 colliders.Remove(colliderList);
                 transform.position = blockPosition;// ステージ内に戻す
+                transform.rotation = blockQuaternion;
             }
         }
         // 衝突リストが空の時
         else
         {
             isCollide = false;// 未衝突の状態にする
+            canRotate = true;
+            beforeQuaternion = blockQuaternion;
+            beforeBlockPosX = blockPosition.x;
+            beforeBlockPosY = blockPosition.y;
+            beforeBlockPosZ = blockPosition.z;
         }
     }
 
@@ -423,21 +435,16 @@ public class BlockController : MonoBehaviour
         timerCount += Time.deltaTime;
 
         // 一定時間を超えたとき
-        if (timerCount > TIMER_SPAN && !canSet && !isCollide && colliders.Count == 0)
+        if (timerCount > TIMER_SPAN && !canSet && !isCollide && colliders.Count == 0 && canRotate)
         {
             blockPosMaxX = 40;
             blockPosMinX = 0;
             blockPosMaxZ = 40;
             blockPosMinZ = 0;
             inputDirect = InputDirection.no;
-            //beforeBlockPosX = blockPosition.x;
-            beforeBlockPosY = blockPosition.y;
-            //beforeBlockPosZ = blockPosition.z;
             timerCount = 0;// タイマーをリセットする
             blockPosition.y -= blockScale;// ブロックを下へ移動
-            beforeQuaternion = transform.rotation;
-            transform.position = blockPosition;// ブロックの位置を反映する
-            canRotate = true;
+            //transform.position = blockPosition;// ブロックの位置を反映する
         }
     }
 
@@ -446,6 +453,8 @@ public class BlockController : MonoBehaviour
      */
     private void InputKey()
     {
+        inputDirect = InputDirection.no;
+
         // ブロックの移動
         // Shiftキーが押されていない間
         if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
@@ -453,7 +462,6 @@ public class BlockController : MonoBehaviour
             // 上方向キーが押された瞬間
             if (Input.GetKeyDown(KeyCode.UpArrow) && !canSet && !isCollide)
             {
-                beforeBlockPosZ = blockPosition.z;
                 blockPosition.z += blockScale;
                 if (blockPosMaxZ < blockPosition.z)
                 {
@@ -465,7 +473,6 @@ public class BlockController : MonoBehaviour
             // 右方向キーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.RightArrow) && !canSet && !isCollide)
             {
-                beforeBlockPosX = blockPosition.x;
                 blockPosition.x += blockScale;
                 if (blockPosMaxX < blockPosition.x)
                 {
@@ -477,7 +484,6 @@ public class BlockController : MonoBehaviour
             // 下方向キーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.DownArrow) && !canSet && !isCollide)
             {
-                beforeBlockPosZ = blockPosition.z;
                 blockPosition.z -= blockScale;
                 if (blockPosMinZ > blockPosition.z)
                 {
@@ -489,7 +495,6 @@ public class BlockController : MonoBehaviour
             // 左方向キーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.LeftArrow) && !canSet && !isCollide)
             {
-                beforeBlockPosX = blockPosition.x;
                 blockPosition.x -= blockScale;
                 if (blockPosMinX > blockPosition.x)
                 {
@@ -502,14 +507,9 @@ public class BlockController : MonoBehaviour
             // Aキーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.A) && !canSet && !isCollide && canRotate)
             {
-                /*beforeBlockPosX = blockPosition.x;
-                beforeBlockPosY = blockPosition.y;
-                beforeBlockPosZ = blockPosition.z;*/
-                // 回転前の角度を格納する
-                beforeQuaternion = transform.rotation;
-
-                // ブロックを左に回転させる(z軸中心)
-                transform.Rotate(0, 0, 90.0f, Space.World);
+                beforeQuaternion = blockQuaternion;// 回転前の角度を格納する
+                blockTransform.Rotate(0, 0, 90.0f, Space.World);// ブロックを左に回転させる(z軸中心)
+                blockQuaternion = blockTransform.rotation;
                 blockPosMaxX = 40;
                 blockPosMaxZ = 40;
                 blockPosMinX = 0;
@@ -518,14 +518,9 @@ public class BlockController : MonoBehaviour
             // Dキーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.D) && !canSet && !isCollide && canRotate)
             {
-                /*beforeBlockPosX = blockPosition.x;
-                beforeBlockPosY = blockPosition.y;
-                beforeBlockPosZ = blockPosition.z;*/
-                // 回転前の角度を格納する
-                beforeQuaternion = transform.rotation;
-
-                // ブロックを右に回転させる(y軸中心)
-                transform.Rotate(0, -90.0f, 0, Space.World);
+                beforeQuaternion = blockQuaternion;// 回転前の角度を格納する
+                blockTransform.Rotate(0, -90.0f, 0, Space.World);// ブロックを右に回転させる(y軸中心)
+                blockQuaternion = blockTransform.rotation;
                 blockPosMaxX = 40;
                 blockPosMaxZ = 40;
                 blockPosMinX = 0;
@@ -534,14 +529,10 @@ public class BlockController : MonoBehaviour
             // Wキーが押された瞬間
             else if (Input.GetKeyDown(KeyCode.W) && !canSet && !isCollide && canRotate)
             {
-                /*beforeBlockPosX = blockPosition.x;
-                beforeBlockPosY = blockPosition.y;
-                beforeBlockPosZ = blockPosition.z;*/
-                // 回転前の角度を格納する
-                beforeQuaternion = transform.rotation;
-
-                // ブロックを奥に回転させる(x軸中心)
-                transform.Rotate(90.0f, 0, 0, Space.World);
+                
+                beforeQuaternion = blockQuaternion;// 回転前の角度を格納する
+                blockTransform.Rotate(90.0f, 0, 0, Space.World);// ブロックを奥に回転させる(x軸中心)
+                blockQuaternion = blockTransform.rotation;
                 blockPosMaxX = 40;
                 blockPosMaxZ = 40;
                 blockPosMinX = 0;
@@ -550,6 +541,7 @@ public class BlockController : MonoBehaviour
         }
         // ブロックの位置を反映する
         transform.position = blockPosition;
+        transform.rotation = blockQuaternion;
     }
 
     /**
