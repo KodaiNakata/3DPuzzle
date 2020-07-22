@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8390107705629684615}
   m_Layer: 0
   m_Name: Block_J_Prefab
-  m_TagString: Block
+  m_TagString: ParentBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

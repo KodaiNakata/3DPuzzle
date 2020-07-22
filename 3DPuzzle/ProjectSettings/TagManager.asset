@@ -10,6 +10,7 @@ TagManager:
   - Wall_Right
   - Wall_Back
   - Block
+  - ParentBlock
   layers:
   - Default
   - TransparentFX
