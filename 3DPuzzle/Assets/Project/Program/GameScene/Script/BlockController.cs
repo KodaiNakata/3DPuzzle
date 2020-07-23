@@ -132,16 +132,19 @@ public class BlockController : MonoBehaviour
 
                 foreach (ColliderList colliderList in colliders)
                 {
-                    // 同じ方向の壁と衝突済みの時
-                    if (list.colliderObj.gameObject.CompareTag(colliderList.colliderObj.gameObject.tag))
+                    if (colliderList.colliderObj)
                     {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 同じ方向の入力でブロックに衝突済みの時
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Block") &&
-                             colliderList.direct == list.direct)
-                    {
-                        return;// 衝突リストに追加しない
+                        // 同じ方向の壁と衝突済みの時
+                        if (list.colliderObj.gameObject.CompareTag(colliderList.colliderObj.gameObject.tag))
+                        {
+                            return;// 衝突リストに追加しない
+                        }
+                        // 同じ方向の入力でブロックに衝突済みの時
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Block") &&
+                                 colliderList.direct == list.direct)
+                        {
+                            return;// 衝突リストに追加しない
+                        }
                     }
                 }
                 colliders.Add(list);// 新しい衝突として検出する
@@ -158,16 +161,19 @@ public class BlockController : MonoBehaviour
 
                 foreach (ColliderList colliderList in colliders)
                 {
-                    // ステージの床と衝突済みの時
-                    if (colliderList.colliderObj.gameObject.CompareTag("Stage"))
+                    if (colliderList.colliderObj != null)
                     {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 入力なしでブロックと衝突済みの時
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Block") &&
-                             colliderList.direct == InputDirection.no)
-                    {
-                        return;// 衝突リストに追加しない
+                        // ステージの床と衝突済みの時
+                        if (colliderList.colliderObj.gameObject.CompareTag("Stage"))
+                        {
+                            return;// 衝突リストに追加しない
+                        }
+                        // 入力なしでブロックと衝突済みの時
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Block") &&
+                                 colliderList.direct == InputDirection.no)
+                        {
+                            return;// 衝突リストに追加しない
+                        }
                     }
                 }
                 colliders.Add(list);// 新しい衝突として検出する
@@ -201,77 +207,80 @@ public class BlockController : MonoBehaviour
                 // 同じものと衝突していないかのチェック
                 foreach (ColliderList colliderList in colliders)
                 {
-                    // ステージの床と衝突済みのとき
-                    if (colliderList.colliderObj.gameObject.CompareTag("Stage") &&
-                             colliderList.direct == list.direct)
+                    if (colliderList.colliderObj != null)
                     {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 左側の壁と衝突済みのとき
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Left") &&
-                             colliderList.direct == list.direct)
-                    {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 手前側の壁と衝突済みのとき
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Foreground") &&
-                             colliderList.direct == list.direct)
-                    {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 右側の壁と衝突済みのとき
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Right") &&
-                             colliderList.direct == list.direct)
-                    {
-                        return;// 衝突リストに追加しない
-                    }
-                    // 奥側の壁と衝突済みのとき
-                    else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Back") &&
-                             colliderList.direct == list.direct)
-                    {
-                        return;// 衝突リストに追加しない
-                    }
-                    // ブロックと衝突済みのとき
-                    else
-                    {
-                        // 回転して衝突したとき
-                        if (list.rotated)
+                        // ステージの床と衝突済みのとき
+                        if (colliderList.colliderObj.gameObject.CompareTag("Stage") &&
+                                 colliderList.direct == list.direct)
                         {
-                            // 別のブロックと回転して衝突済みのとき
-                            if (colliderList.rotated == list.rotated)
-                            {
-                                return;// 衝突リストに追加しない
-                            }
-                            // 別のブロックと回転なし(落下して)衝突済みのとき
-                            else if (colliderList.direct == InputDirection.no)
-                            {
-                                return;// 衝突リストに追加しない
-                            }
+                            return;// 衝突リストに追加しない
                         }
-                        // 回転なしで同じ入力方向でブロックと衝突済みのとき
-                        else if (colliderList.direct == list.direct)
+                        // 左側の壁と衝突済みのとき
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Left") &&
+                                 colliderList.direct == list.direct)
                         {
-                            // 入力なしで衝突したとき
-                            if (list.direct == InputDirection.no)
+                            return;// 衝突リストに追加しない
+                        }
+                        // 手前側の壁と衝突済みのとき
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Foreground") &&
+                                 colliderList.direct == list.direct)
+                        {
+                            return;// 衝突リストに追加しない
+                        }
+                        // 右側の壁と衝突済みのとき
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Right") &&
+                                 colliderList.direct == list.direct)
+                        {
+                            return;// 衝突リストに追加しない
+                        }
+                        // 奥側の壁と衝突済みのとき
+                        else if (colliderList.colliderObj.gameObject.CompareTag("Wall_Back") &&
+                                 colliderList.direct == list.direct)
+                        {
+                            return;// 衝突リストに追加しない
+                        }
+                        // ブロックと衝突済みのとき
+                        else
+                        {
+                            // 回転して衝突したとき
+                            if (list.rotated)
                             {
-                                // 回転して衝突済みのとき
-                                if (colliderList.rotated)
+                                // 別のブロックと回転して衝突済みのとき
+                                if (colliderList.rotated == list.rotated)
+                                {
+                                    return;// 衝突リストに追加しない
+                                }
+                                // 別のブロックと回転なし(落下して)衝突済みのとき
+                                else if (colliderList.direct == InputDirection.no)
                                 {
                                     return;// 衝突リストに追加しない
                                 }
                             }
-                            // 入力ありで衝突したとき
-                            else
+                            // 回転なしで同じ入力方向でブロックと衝突済みのとき
+                            else if (colliderList.direct == list.direct)
                             {
-                                return;// 衝突リストに追加しない
+                                // 入力なしで衝突したとき
+                                if (list.direct == InputDirection.no)
+                                {
+                                    // 回転して衝突済みのとき
+                                    if (colliderList.rotated)
+                                    {
+                                        return;// 衝突リストに追加しない
+                                    }
+                                }
+                                // 入力ありで衝突したとき
+                                else
+                                {
+                                    return;// 衝突リストに追加しない
+                                }
                             }
-                        }
-                        if (colliderList.colliderObj.gameObject.transform.parent != null)
-                        {
-                            // 同じブロックと落下して衝突済みのとき
-                            if (!list.rotated && list.colliderObj.gameObject.transform.parent.name.Equals(colliderList.colliderObj.gameObject.transform.parent.name))
+                            else if (colliderList.colliderObj.gameObject.transform.parent != null)
                             {
-                                return;// 衝突リストに追加しない
+                                // 同じブロックと落下して衝突済みのとき
+                                if (!list.rotated && list.colliderObj.gameObject.transform.parent.name.Equals(colliderList.colliderObj.gameObject.transform.parent.name))
+                                {
+                                    return;// 衝突リストに追加しない
+                                }
                             }
                         }
                     }

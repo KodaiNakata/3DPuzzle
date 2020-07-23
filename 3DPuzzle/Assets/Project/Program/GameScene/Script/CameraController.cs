@@ -9,7 +9,7 @@ using UnityEngine;
 
 /**
  * @class CameraController
- * @brief カメラの移動を扱うファイル
+ * @brief カメラの移動を扱うクラス
  */
 public class CameraController : MonoBehaviour
 {
