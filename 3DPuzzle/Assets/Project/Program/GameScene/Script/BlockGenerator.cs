@@ -61,7 +61,7 @@ public class BlockGenerator : MonoBehaviour
         int randomBlockNo = Random.Range(0, BLOCK_KIND);// 全ブロックから1種類を取得する
         //int randomBlockNo = 2;
         GameObject newBlockObject = Instantiate(blockPrefab[randomBlockNo]) as GameObject;// 取得したブロックを生成する
-        newBlockObject.transform.position = new Vector3Int(20,100,0);
+        newBlockObject.transform.position = new Vector3Int(20,180,20);
     }
 
     /**

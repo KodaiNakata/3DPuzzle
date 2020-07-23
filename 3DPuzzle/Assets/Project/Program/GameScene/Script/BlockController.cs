@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 /**
- * @file BlockController.cs
- * @brief ブロックの移動や衝突判定を扱うファイル
- * @author Kodai Nakata
- */
+* @file BlockController.cs
+* @brief ブロックの移動や衝突判定を扱うファイル
+* @author Kodai Nakata
+*/
 
 /**
  * @class BlockController
@@ -54,6 +55,7 @@ public class BlockController : MonoBehaviour
 
     private int blockScale;// ブロックの大きさ
 
+    private const int TOP_POS_Y = 160;// ステージの最上段のy座標
     private const float TIMER_SPAN = 1.0f;// タイマーの期間
     private float timerCount = 0;// タイマーのカウント
 
@@ -74,7 +76,7 @@ public class BlockController : MonoBehaviour
     {
         // @todo 下記のblockPositionはテスト用で適当に配置
         //       本番用に無難に設置できるような座標を決める必要あり
-        blockPosition = new Vector3Int(10, 100, 0);
+        blockPosition = new Vector3Int(20, 180, 20);
         blockQuaternion = transform.rotation;
         blockTransform = transform;
         blockTransform.position = blockPosition;
@@ -365,28 +367,24 @@ public class BlockController : MonoBehaviour
                     else if (colliderList.direct == InputDirection.left)
                     {
                         blockPosition.x += blockScale;
-                        //beforeBlockPosX = blockPosition.x;
                         blockPosMinX = blockPosition.x;
                     }
                     // 右方向キーが入力されてブロックに衝突したとき
                     else if (colliderList.direct == InputDirection.right)
                     {
                         blockPosition.x -= blockScale;
-                        //beforeBlockPosX = blockPosition.x;
                         blockPosMaxX = blockPosition.x;
                     }
                     // 上方向キーが入力されてブロックに衝突したとき
                     else if (colliderList.direct == InputDirection.up)
                     {
                         blockPosition.z -= blockScale;
-                        //beforeBlockPosZ = blockPosition.z;
                         blockPosMaxZ = blockPosition.z;
                     }
                     // 下方向キーが入力されてブロックに衝突したとき
                     else if (colliderList.direct == InputDirection.down)
                     {
                         blockPosition.z += blockScale;
-                        //beforeBlockPosZ = blockPosition.z;
                         blockPosMinZ = blockPosition.z;
                     }
                     // 方向キー何も入力せずにブロックに衝突したとき
@@ -448,6 +446,7 @@ public class BlockController : MonoBehaviour
             blockPosMinZ = 0;// z座標の最小値を格納
             inputDirect = InputDirection.no;// 落下したため入力なしとする
             timerCount = 0;// タイマーをリセットする
+            beforeBlockPosY = blockPosition.y;
             blockPosition.y -= blockScale;// ブロックを下へ移動
         }
     }
@@ -569,25 +568,49 @@ public class BlockController : MonoBehaviour
         // 設置完了状態かつ未衝突かつ衝突リストが空のとき
         if (canSet && !isCollide && colliders.Count == 0)
         {
-            DeleteBlock();// ブロックの消滅
-            MoveBlock();// 消滅対象外のブロックの移動
-            if (this != null)
+            // ステージ内のとき
+            if (OnStage())
             {
-                GetComponent<Rigidbody>().isKinematic = false;// 物理演算の影響を受けない
-                GetComponent<BlockController>().enabled = false;// スクリプトを非アクティブにする
+                DeleteBlock();// ブロックの消滅
+                MoveBlock();// 消滅対象外のブロックの移動
+                if (this != null)
+                {
+                    GetComponent<Rigidbody>().isKinematic = false;// 物理演算の影響を受けない
+                    GetComponent<BlockController>().enabled = false;// スクリプトを非アクティブにする
+                }
+                BlockGenerator.GetInstatnce().SetStartCreating(true);// ブロックの生成を開始する
             }
-            BlockGenerator.GetInstatnce().SetStartCreating(true);// ブロックの生成を開始する
+            // ステージ外のとき
+            else
+            {
+                Invoke("TransitionGameOverScene", 1f);// 1秒後にゲームオーバー画面へ遷移する
+            }
         }
     }
 
     /**
+     * @brief ステージ内かを確認する
+     * @return true:ステージ内
+     *         false:ステージ外
+     */
+    private bool OnStage()
+    {
+        // 消滅対象のブロックのy座標を格納
+        for (int blockNo = 0; blockNo < transform.childCount; blockNo++)
+        {
+            // 設置したブロックのy座標を取得
+            int blockPosY = Mathf.RoundToInt(transform.GetChild(blockNo).position.y);
+
+            // ステージ外のとき
+            if (TOP_POS_Y < blockPosY)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
      * @brief ブロックを消滅させる
-     * @ todo 消滅時に必要なのはそれぞれのブロックのy座標の位置
-     * 子cubeのy座標は消滅する際にどのcubeを対象とするかに必要
-     * 子cubeのy座標は消滅後に移動が発生するかの際に必要
-     * 1列あたり16このcubeがあれば消滅
-     * 同じ親オブジェクト名でもそれぞれのx座標とz座標は違うため検出可能
-     * 子cubeが4つすべて消えたら親cubeも消滅
      */
     private void DeleteBlock()
     {
@@ -648,9 +671,8 @@ public class BlockController : MonoBehaviour
                             // 消滅対象となっていないとき
                             if (!deleteChildBlockList.Contains(gameObject.transform.GetChild(childBlockNo)))
                             {
-                                // 消滅したy座標より上のブロックを下へ移動する対象として格納(ブロック一つ分)
+                                // 消滅したy座標より上のブロックを下へ移動する対象物として格納(移動量はブロック一つ分)
                                 moveBlocks.Add(gameObject.transform.GetChild(childBlockNo));
-                                //Debug.Log("移動対象：" + gameObject.transform.GetChild(childBlockNo).name);
                             }
                         }
                     }
@@ -661,7 +683,6 @@ public class BlockController : MonoBehaviour
         // 子ブロックを消滅させる
         foreach (Transform childBlock in deleteChildBlockList)
         {
-            //Debug.Log("子ブロック消滅：" + childBlock.name);
             DestroyImmediate(childBlock.gameObject);// 子ブロックを消滅
         }
 
@@ -671,7 +692,6 @@ public class BlockController : MonoBehaviour
             // 子ブロックすべてが消滅したとき
             if (gameObject.transform.childCount == 0)
             {
-                //Debug.Log("親オブジェクト消滅：" + gameObject.name);
                 DestroyImmediate(gameObject);// 親オブジェクトを消滅
             }
         }
@@ -688,5 +708,13 @@ public class BlockController : MonoBehaviour
             childBlockPos.y -= blockScale;
             block.position = childBlockPos;
         }
+    }
+
+    /**
+     * @brief ゲームオーバー画面へ遷移する
+     */
+    private void TransitionGameOverScene()
+    {
+        SceneManager.LoadScene("GameOverScene");// ゲームオーバー画面へ遷移
     }
 }
