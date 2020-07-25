@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 /**
@@ -14,9 +15,9 @@ using UnityEngine.UI;
  */
 public class TimerController : MonoBehaviour
 {
-    private int hour;// 時
-    private int minute;// 分
-    private float second;// 秒
+    private static int hour;// 時
+    private static int minute;// 分
+    private static float second;// 秒
 
     private float oldSecond;// 前の秒数
     private Text timerText;// タイマー表示用テキスト
@@ -57,5 +58,14 @@ public class TimerController : MonoBehaviour
             timerText.text = hour.ToString("00") + ":" + minute.ToString("00") + ":" + ((int)second).ToString("00");// タイマーを更新
         }
         oldSecond = second;// 更新前の秒数に格納
+    }
+
+    /**
+     * @brief 時間の結果を取得する
+     * @return 最終時間の結果
+     */
+    public static string getResultOfTime()
+    {
+        return hour.ToString("00") + ":" + minute.ToString("00") + ":" + ((int)second).ToString("00");
     }
 }

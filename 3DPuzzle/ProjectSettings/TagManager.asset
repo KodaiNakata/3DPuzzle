@@ -11,6 +11,7 @@ TagManager:
   - Wall_Back
   - Block
   - ParentBlock
+  - Result
   layers:
   - Default
   - TransparentFX

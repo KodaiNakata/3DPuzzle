@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 /**
 * @file GameOverDirector.cs
 * @brief ゲームオーバー画面の監督スクリプトのファイル
@@ -14,6 +15,15 @@ using UnityEngine.SceneManagement;
  */
 public class GameOverDirector : MonoBehaviour
 {
+    /**
+     * @brief 最初のフレームに入る前に呼び出される関数
+     */
+    void Start()
+    {
+        Text resultTimer = GameObject.FindGameObjectWithTag("Result").GetComponent<Text>();// 時間の結果のテキストを取得
+        resultTimer.text = "Result " + TimerController.getResultOfTime();// 時間の結果を表示する
+    }
+
     /**
      * @brief 1フレームごとに呼び出される関数
      */
