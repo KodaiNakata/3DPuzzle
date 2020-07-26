@@ -36,6 +36,12 @@ public class BlockGenerator : MonoBehaviour
      */
     void Update()
     {
+        // ポーズ状態のとき
+        if (PauseController.IsPaused())
+        {
+            return;// ブロックの生成不可
+        }
+
         // 生成開始の合図が来たとき
         if (startCreating)
         {

@@ -99,6 +99,11 @@ public class BlockController : MonoBehaviour
      */
     void Update()
     {
+        // ポーズ状態のとき
+        if (PauseController.IsPaused())
+        {
+            return;// ブロックの操作不可
+        }
         ModifyBlockPos();
         // 設置未完了で未衝突で回転可能な時
         if (!canSet && !isCollide && colliders.Count == 0 && canRotate)

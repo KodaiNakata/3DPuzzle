@@ -39,6 +39,12 @@ public class TimerController : MonoBehaviour
      */
     void Update()
     {
+        // ポーズ状態のとき
+        if (PauseController.IsPaused())
+        {
+            return;// タイマーのカウント不可
+        }
+
         second += Time.deltaTime;
         // 60秒以上のとき
         if (second >= 60f)

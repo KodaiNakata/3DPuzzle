@@ -15,7 +15,7 @@ public class CameraController : MonoBehaviour
 {
     private const float MOVE_SPEED = 3f;// 移動するスピード
     private const float ROTATE_SPEED = 3f;// 回転する速さ
-    private const float MIN_DISTANCE = 70f;// ステージに向かって近づける最短距離
+    private const float MIN_DISTANCE = 180f;// ステージに向かって近づける最短距離(@todo編集必要ステージ斜めからブロックが重ならないようにする)
     private const float MAX_DISTANCE = 325f;// ステージから遠ざける最長距離
 
     private Vector3 centerRotation;// 回転の中心
@@ -35,6 +35,11 @@ public class CameraController : MonoBehaviour
      */
     void Update()
     {
+        // ポーズ状態のとき
+        if (PauseController.IsPaused())
+        {
+            return;// カメラの操作不可
+        }
         InputKey();
         ModifiedCameraPos();
     }
@@ -68,7 +73,7 @@ public class CameraController : MonoBehaviour
     private void ModifiedCameraPos()
     {
         float distance = Vector3.Distance(transform.position, centerRotation);// ステージの中心からカメラの位置までの距離を取得
-
+        //Debug.Log("距離：" + distance);
         // 最短距離より近づいたまたは最長距離より遠ざけたとき
         if (distance < MIN_DISTANCE || MAX_DISTANCE < distance)
         {

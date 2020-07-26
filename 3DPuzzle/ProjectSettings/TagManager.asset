@@ -12,6 +12,7 @@ TagManager:
   - Block
   - ParentBlock
   - Result
+  - Pause
   layers:
   - Default
   - TransparentFX
