@@ -19,14 +19,19 @@ public class BlockController : MonoBehaviour
 {
     /**
      * @enum InputDirection
-     * 入力した方向の列挙体
+     * @brief 入力した方向の列挙体
      */
     private enum InputDirection{
-        left,// 左方向入力あり
-        right,// 右方向入力あり
-        up,// 上方向入力あり
-        down,// 下方向入力あり
-        no,// 入力なし
+        //! 左方向入力あり
+        left,
+        //! 右方向入力あり
+        right,
+        //! 上方向入力あり
+        up,
+        //! 下方向入力あり
+        down,
+        //! 入力なし
+        no
     };
 
     /**
@@ -35,38 +40,57 @@ public class BlockController : MonoBehaviour
      */
     private struct ColliderList
     {
-        public int priority;// 優先度(値が高いほど優先度が高め)
-        public Collider colliderObj;// 衝突オブジェクト
-        public InputDirection direct;// 入力方向
-        public bool rotated;// 回転したか
+        //! 優先度(値が高いほど優先度が高め)
+        public int priority;
+        //! 衝突オブジェクト
+        public Collider colliderObj;
+        //! 入力方向
+        public InputDirection direct;
+        //! 回転したか
+        public bool rotated;
     }
-
-    private Transform blockTransform;// ブロックのトランスフォーム
-    private Vector3Int blockPosition;// ブロックの位置
-    private Quaternion blockQuaternion;// ブロックの回転角度
-    private int blockPosMaxX;// ブロックが動けるX座標の範囲(最大値)
-    private int blockPosMinX;// ブロックが動けるX座標の範囲(最小値)
-    private int blockPosMaxZ;// ブロックが動けるZ座標の範囲(最大値)
-    private int blockPosMinZ;// ブロックが動けるZ座標の範囲(最小値)
-    private int beforeBlockPosY;// ブロックのY座標(移動前)
-    private int beforeBlockPosX;// ブロックのX座標(移動前)
-    private int beforeBlockPosZ;// ブロックのZ座標(移動前)
-    private Quaternion beforeQuaternion;// 回転前の角度
-
-    private int blockScale;// ブロックの大きさ
-
-    private const int TOP_POS_Y = 160;// ステージの最上段のy座標
-    private const float TIMER_SPAN = 1.0f;// タイマーの期間
-    private float timerCount = 0;// タイマーのカウント
-
-    private bool canSet;// 設置できたか
-    private bool isCollide;// 衝突したか
-    private bool canRotate;// 回転できるか
-
-    private InputDirection inputDirect;// どこの方向を入力したか
-
-    private List<ColliderList> colliders;// 衝突リスト
-    private List<Transform> moveBlocks;// 移動対象のブロックのリスト
+    //! ブロックのトランスフォーム
+    private Transform blockTransform;
+    //! ブロックの位置
+    private Vector3Int blockPosition;
+    //! ブロックの回転角度
+    private Quaternion blockQuaternion;
+    //! ブロックが動けるX座標の範囲(最大値)
+    private int blockPosMaxX;
+    //! ブロックが動けるX座標の範囲(最小値)
+    private int blockPosMinX;
+    //! ブロックが動けるZ座標の範囲(最大値)
+    private int blockPosMaxZ;
+    //! ブロックが動けるZ座標の範囲(最小値)
+    private int blockPosMinZ;
+    //! ブロックのY座標(移動前)
+    private int beforeBlockPosY;
+    //! ブロックのX座標(移動前)
+    private int beforeBlockPosX;
+    //! ブロックのZ座標(移動前)
+    private int beforeBlockPosZ;
+    //! 回転前の角度
+    private Quaternion beforeQuaternion;
+    //! ブロックの大きさ
+    private int blockScale;
+    //! ステージの最上段のy座標
+    private const int TOP_POS_Y = 160;
+    //! タイマーの期間
+    private const float TIMER_SPAN = 1.0f;
+    //! タイマーのカウント
+    private float timerCount = 0;
+    //! 設置できたか
+    private bool canSet;
+    //! 衝突したか
+    private bool isCollide;
+    //! 回転できるか
+    private bool canRotate;
+    //! どこの方向を入力したか
+    private InputDirection inputDirect;
+    //! 衝突リスト
+    private List<ColliderList> colliders;
+    //! 移動対象のブロックのリスト
+    private List<Transform> moveBlocks;
 
 
     /**
@@ -74,8 +98,6 @@ public class BlockController : MonoBehaviour
      */
     void Start()
     {
-        // @todo 下記のblockPositionはテスト用で適当に配置
-        //       本番用に無難に設置できるような座標を決める必要あり
         blockPosition = new Vector3Int(20, 180, 20);
         blockQuaternion = transform.rotation;
         blockTransform = transform;

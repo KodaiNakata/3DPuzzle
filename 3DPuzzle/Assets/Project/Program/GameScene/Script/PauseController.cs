@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 /**
-* @file PauseController.cs
-* @brief ポーズ操作のファイル
-* @author Kodai Nakata
-*/
+ * @file PauseController.cs
+ * @brief ポーズ操作のファイル
+ * @author Kodai Nakata
+ */
 
 /**
  * @class PauseController
@@ -14,8 +14,9 @@ using UnityEngine.SceneManagement;
  */
 public class PauseController : MonoBehaviour
 {
-    // ポーズ状態か
+    //! ポーズ状態か
     private static bool isPaused;
+    //! ポーズ専用のパネルのオブジェクト
     private GameObject pausePanel;
 
     /**

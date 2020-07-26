@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 /**
-* @file GameOverDirector.cs
-* @brief ゲームオーバー画面の監督スクリプトのファイル
-* @author Kodai Nakata
-*/
+ * @file GameOverDirector.cs
+ * @brief ゲームオーバー画面の監督スクリプトのファイル
+ * @author Kodai Nakata
+ */
 
 /**
  * @class GameOverDirector

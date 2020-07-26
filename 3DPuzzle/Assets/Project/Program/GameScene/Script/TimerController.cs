@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 /**
-* @file TimerController.cs
-* @brief タイマーを扱うファイル
-* @author Kodai Nakata
-*/
+ * @file TimerController.cs
+ * @brief タイマーを扱うファイル
+ * @author Kodai Nakata
+ */
 
 /**
  * @class TimerController
@@ -15,12 +15,17 @@ using UnityEngine.UI;
  */
 public class TimerController : MonoBehaviour
 {
-    private static int hour;// 時
-    private static int minute;// 分
-    private static float second;// 秒
+    //! 時
+    private static int hour;
+    //! 分
+    private static int minute;
+    //! 秒
+    private static float second;
 
-    private float oldSecond;// 前の秒数
-    private Text timerText;// タイマー表示用テキスト
+    //! 前の秒数
+    private float oldSecond;
+    //! タイマー表示用テキスト
+    private Text timerText;
 
     /**
      * @brief 最初のフレームに入る前に呼び出される関数

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 /**
-* @file StartSceneDirector.cs
-* @brief スタート画面の監督スクリプトのファイル
-* @author Kodai Nakata
-*/
+ * @file StartSceneDirector.cs
+ * @brief スタート画面の監督スクリプトのファイル
+ * @author Kodai Nakata
+ */
 
 /**
  * @class StartSceneDirector

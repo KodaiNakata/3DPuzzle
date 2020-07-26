@@ -14,12 +14,16 @@ using UnityEngine;
  */
 public class BlockGenerator : MonoBehaviour
 {
-    private static BlockGenerator instance;// 自クラスのインスタンス
-    private const int BLOCK_KIND = 7;// ブロックの種類
-    private bool startCreating;// 生成開始
+    //! 自クラスのインスタンス
+    private static BlockGenerator instance;
+    //! ブロックの種類
+    private const int BLOCK_KIND = 7;
+    //! 生成開始
+    private bool startCreating;
 
+    //! ブロックのPrefabを格納する配列
     [SerializeField]
-    private GameObject[] blockPrefab = default;// ブロックのPrefabを格納する配列
+    private GameObject[] blockPrefab = default;
 
     /**
      * @brief 最初のフレームに入る前に呼び出される関数
